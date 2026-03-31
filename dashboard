@@ -1,0 +1,84 @@
+<?php
+session_start();
+include 'config.php';
+
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$blockedUsers = $conn->query("SELECT COUNT(*) as total FROM users WHERE blocked=1")->fetch_assoc()['total'];
+$alertsCount = $conn->query("SELECT COUNT(*) as total FROM alerts")->fetch_assoc()['total'];
+$secretsCount = $conn->query("SELECT COUNT(*) as total FROM secrets WHERE user_id=".$_SESSION['user_id'])->fetch_assoc()['total'];
+?>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Control panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">🏥 Clinic Management System</div>
+
+<div class="container">
+
+    <div class="card">
+        <div class="welcome-box">
+            <div>
+                <h2 class="page-title">أهلاً <?php echo $_SESSION['username']; ?></h2>
+                <p>welcome</p>
+            </div>
+            <div class="badge">Rule: <?php echo $_SESSION['role']; ?></div>
+        </div>
+
+        <a class="btn btn-danger" href="logout.php">🚪 Login</a>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="stat-box">
+            <h3>👤User name </h3>
+            <p><?php echo $_SESSION['username']; ?></p>
+        </div>
+
+        <div class="stat-box">
+            <h3>🛡️Role</h3>
+            <p><?php echo $_SESSION['role']; ?></p>
+        </div>
+
+        <div class="stat-box">
+            <h3>🚫 <Block acount ></Blockquote> accounts</h3>
+            <p><?php echo $blockedUsers; ?></p>
+        </div>
+
+        <div class="stat-box">
+            <h3>🔔 Alerts</h3>
+            <p><?php echo $alertsCount; ?></p>
+        </div>
+
+        <div class="stat-box">
+            <h3>🔐 Encrypted data</h3>
+            <p><?php echo $secretsCount; ?></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 class="page-title">Express services</h3>
+
+        <a class="btn" href="encrypt.php">🔐 Data encryption</a>
+        <a class="btn" href="view_secrets.php">📂 Display data</a>
+        <a class="btn" href="decrypt.php">🔓 Decrypt Data</a>
+
+        <?php if ($_SESSION['role'] == 'admin') { ?>
+            <a class="btn" href="admin_unblock.php">✅ Unblocking management</a>
+            <a class="btn" href="alerts.php">🔔 Security alerts</a>
+        <?php } ?>
+
+        <img src="assets/clinic.jpg" alt="Clinic" class="hero-image">
+    </div>
+
+</div>
+
+</body>
+</html>
